@@ -93,51 +93,15 @@ elif menu == "⏰ Master Routine":
 # --- TAB 3: ALLEN & MBA PRO ---
 elif menu == "🧬 Allen & MBA Pro":
     st.title("🎓 Professional Command Center")
-    
-    # Initialize session state for MBA tasks if it doesn't exist
-    if 'mba_todo' not in st.session_state:
-        st.session_state.mba_todo = [
-            {"task": "Operations Management Assignment", "priority": "High 🔥"},
-            {"task": "Python Data Science Module", "priority": "Medium 📈"}
-        ]
-
     colL, colR = st.columns(2)
-    
     with colL:
-        st.header("🧬 Biology Faculty (Allen)")
-        st.markdown("<div class='section-box'>", unsafe_allow_html=True)
-        st.info("📍 **Current Focus:** Grade 9 & 10 Biology")
-        st.write("📖 **Grade 9:** Cell Biology & Tissues")
-        st.write("📖 **Grade 10:** Genetics & Evolution")
-        st.button("View Lesson Planner 📅")
-        st.markdown("</div>", unsafe_allow_html=True)
-        
+        st.header("🧬 Biology Faculty")
+        st.info("Today's Target: Prepare Grade 9 Cell Biology Notes")
+        st.write("✅ Grade 10: Genetics review")
     with colR:
-        st.header("📊 MBA To-Do List")
-        st.markdown("<div class='section-box'>", unsafe_allow_html=True)
-        
-        # Add new task input
-        with st.expander("➕ Add New MBA Task"):
-            new_task = st.text_input("What's next in Data Science/Ops?")
-            new_priority = st.selectbox("Priority", ["High 🔥", "Medium 📈", "Low ☕"])
-            if st.button("Add Task"):
-                if new_task:
-                    st.session_state.mba_todo.append({"task": new_task, "priority": new_priority})
-                    st.rerun()
-
-        st.write("---")
-        # Display Tasks
-        for i, item in enumerate(st.session_state.mba_todo):
-            c1, c2 = st.columns([3, 1])
-            is_done = c1.checkbox(f"{item['task']}", key=f"task_{i}")
-            c2.write(f"*{item['priority']}*")
-            if is_done:
-                st.write(f"~~{item['task']}~~ ✅ Nice job, Shaan!")
-        
-        if st.button("🧹 Clear Completed Tasks"):
-            # This is a simple placeholder for clearing; in a full app, you'd filter the list
-            st.toast("Time to crush those goals! 💪")
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.header("📊 MBA Data Science")
+        st.warning("Next: Operations Management Assignment")
+        st.write("📈 Data Science: Finish Python module")
 
 # --- TAB 4: MONEY MAGIC ---
 elif menu == "💸 Money Magic":
@@ -162,66 +126,3 @@ elif menu == "✍️ Heart Journal":
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. 📖")
         except Exception as e: st.error(f"Error: {e}")
-            import streamlit as st
-import pandas as pd
-from datetime import datetime
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
-# --- PAGE SETUP ---
-st.set_page_config(page_title="Shaan's Pro OS", page_icon="🧬", layout="wide")
-
-# --- DB CONNECTION ---
-@st.cache_resource
-def get_google_sheet(sheet_name):
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_dict = dict(st.secrets["shaan_os_secrets"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    client = gspread.authorize(creds)
-    return client.open("Shaan_Daily_Tracker").worksheet(sheet_name)
-
-# --- THE TASK MANAGER LOGIC ---
-if "mba_tasks" not in st.session_state:
-    st.session_state.mba_tasks = []
-if "allen_tasks" not in st.session_state:
-    st.session_state.allen_tasks = []
-
-# --- SIDEBAR ---
-menu = st.sidebar.radio("NAVIGATE", ["🏠 Dashboard", "🧬 Allen & MBA Pro", "💸 Expenses"])
-
-# --- TAB: ALLEN & MBA PRO (THE TO-DO LIST) ---
-if menu == "🧬 Allen & MBA Pro":
-    st.title("🎓 Professional Task Manager")
-    st.markdown("---")
-    
-    colL, colR = st.columns(2)
-    
-    with colL:
-        st.subheader("🧬 Allen Biology Tasks")
-        new_allen = st.text_input("Add Allen Task (e.g., Prepare Cell Biology MCQ)", key="allen_input")
-        if st.button("Add to Allen List"):
-            st.session_state.allen_tasks.append(new_allen)
-        
-        st.write("Current Tasks:")
-        for i, task in enumerate(st.session_state.allen_tasks):
-            if st.checkbox(f"Allen: {task}", key=f"a_{i}"):
-                st.write(f"~~{task}~~ ✅")
-
-    with colR:
-        st.subheader("📊 MBA Operations Tasks")
-        new_mba = st.text_input("Add MBA Task (e.g., Data Science Python Module)", key="mba_input")
-        if st.button("Add to MBA List"):
-            st.session_state.mba_tasks.append(new_mba)
-            
-        st.write("Current Tasks:")
-        for i, task in enumerate(st.session_state.mba_tasks):
-            if st.checkbox(f"MBA: {task}", key=f"m_{i}"):
-                st.write(f"~~{task}~~ ✅")
-                
-    if st.button("💾 Save Progress to Cloud"):
-        st.success("Your professional progress is synced! ☁️")
-
-# --- REST OF THE TABS (Dashboard, Expenses, etc.) ---
-# [Keep the previous logic for Dashboard and Money Magic here]
-
-
