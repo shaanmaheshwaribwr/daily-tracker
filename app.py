@@ -10,21 +10,20 @@ st.set_page_config(page_title="Shaan's Ultimate OS 🌈", layout="wide")
 # --- DATABASE CONNECTION ---
 def get_google_sheet(sheet_name):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    # Connecting to your secrets
     creds_dict = dict(st.secrets["shaan_os_secrets"])
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
     return client.open("Shaan_Daily_Tracker").worksheet(sheet_name)
 
-# --- SIDEBAR ---
+# --- SIDEBAR (Same as before) ---
 st.sidebar.title("🌈 Shaan's Universe")
 menu = st.sidebar.radio("COMMAND", ["🏠 Home", "⏰ Master Routine", "💸 Expenses"])
 
-# --- TAB: MASTER ROUTINE (FULL WORKING) ---
+# --- TAB: MASTER ROUTINE (Full 12 Steps) ---
 if menu == "⏰ Master Routine":
     st.title("🎯 Precision Timetable 🌸")
     
-    # Logic to reset checkboxes every day automatically
+    # Daily Reset Logic
     today = datetime.now().strftime('%Y-%m-%d')
     if "last_date" not in st.session_state or st.session_state.last_date != today:
         st.session_state.last_date = today
@@ -50,14 +49,20 @@ if menu == "⏰ Master Routine":
 
     if st.button("🚀 SYNC MY DAY"):
         try:
-            # Saving to Google Sheets
             sheet = get_google_sheet("Habits")
             score = sum([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12])
-            sheet.append_row([today, f"{score}/12", "Joyfully Saved!"])
+            sheet.append_row([today, f"{score}/12", "Success"])
             st.balloons()
-            st.success(f"Amazing, Shaan! {score}/12 tasks recorded in Google Sheets! 🔥")
+            st.success(f"Perfect! {score}/12 tasks saved! 🔥")
         except Exception as e:
-            st.error(f"Sync Error: Make sure your Sheet is shared with the client_email and has a tab named 'Habits'!")
+            st.error("Sheet Error: Tab 'Habits' not found!")
 
-else:
-    st.info("Select 'Master Routine' from the sidebar to use your timetable!")
+# --- TAB: HOME (Design Restoration) ---
+elif menu == "🏠 Home":
+    st.title("☀️ Shaan's Command Center")
+    st.write("Welcome back! Your routine and professional tasks are synced.")
+
+# --- TAB: EXPENSES ---
+elif menu == "💸 Expenses":
+    st.title("💸 Expense Tracker")
+    st.info("Log your daily spends here.")
