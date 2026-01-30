@@ -93,15 +93,51 @@ elif menu == "⏰ Master Routine":
 # --- TAB 3: ALLEN & MBA PRO ---
 elif menu == "🧬 Allen & MBA Pro":
     st.title("🎓 Professional Command Center")
+    
+    # Initialize session state for MBA tasks if it doesn't exist
+    if 'mba_todo' not in st.session_state:
+        st.session_state.mba_todo = [
+            {"task": "Operations Management Assignment", "priority": "High 🔥"},
+            {"task": "Python Data Science Module", "priority": "Medium 📈"}
+        ]
+
     colL, colR = st.columns(2)
+    
     with colL:
-        st.header("🧬 Biology Faculty")
-        st.info("Today's Target: Prepare Grade 9 Cell Biology Notes")
-        st.write("✅ Grade 10: Genetics review")
+        st.header("🧬 Biology Faculty (Allen)")
+        st.markdown("<div class='section-box'>", unsafe_allow_html=True)
+        st.info("📍 **Current Focus:** Grade 9 & 10 Biology")
+        st.write("📖 **Grade 9:** Cell Biology & Tissues")
+        st.write("📖 **Grade 10:** Genetics & Evolution")
+        st.button("View Lesson Planner 📅")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
     with colR:
-        st.header("📊 MBA Data Science")
-        st.warning("Next: Operations Management Assignment")
-        st.write("📈 Data Science: Finish Python module")
+        st.header("📊 MBA To-Do List")
+        st.markdown("<div class='section-box'>", unsafe_allow_html=True)
+        
+        # Add new task input
+        with st.expander("➕ Add New MBA Task"):
+            new_task = st.text_input("What's next in Data Science/Ops?")
+            new_priority = st.selectbox("Priority", ["High 🔥", "Medium 📈", "Low ☕"])
+            if st.button("Add Task"):
+                if new_task:
+                    st.session_state.mba_todo.append({"task": new_task, "priority": new_priority})
+                    st.rerun()
+
+        st.write("---")
+        # Display Tasks
+        for i, item in enumerate(st.session_state.mba_todo):
+            c1, c2 = st.columns([3, 1])
+            is_done = c1.checkbox(f"{item['task']}", key=f"task_{i}")
+            c2.write(f"*{item['priority']}*")
+            if is_done:
+                st.write(f"~~{item['task']}~~ ✅ Nice job, Shaan!")
+        
+        if st.button("🧹 Clear Completed Tasks"):
+            # This is a simple placeholder for clearing; in a full app, you'd filter the list
+            st.toast("Time to crush those goals! 💪")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # --- TAB 4: MONEY MAGIC ---
 elif menu == "💸 Money Magic":
@@ -187,4 +223,5 @@ if menu == "🧬 Allen & MBA Pro":
 
 # --- REST OF THE TABS (Dashboard, Expenses, etc.) ---
 # [Keep the previous logic for Dashboard and Money Magic here]
+
 
