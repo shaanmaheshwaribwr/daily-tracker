@@ -7,7 +7,14 @@ import os
 st.set_page_config(page_title="Shaan's Pro Tracker", page_icon="💪")
 st.title("🚀 Shaan's Daily Routine & Mood Tracker")
 
-# --- YOUR NEW SCHEDULE ---
+# --- ADMIN LOGIN (SIDEBAR) ---
+st.sidebar.header("🔒 Admin Login")
+password = st.sidebar.text_input("Enter Password to Edit:", type="password")
+
+# --- DATA FILE NAME ---
+file_name = "shaan_tracker_data.csv"
+
+# --- TASKS LIST ---
 tasks = {
     "06:30 AM": "Exercise (1 hr) 💪",
     "07:30 AM": "Breakfast + News 📰",
@@ -24,69 +31,79 @@ tasks = {
     "10:00 PM": "Sleep (Min 8 Hrs) 😴"
 }
 
-# --- DATE & MOOD ---
-col1, col2 = st.columns(2)
-with col1:
-    today = datetime.now().strftime('%Y-%m-%d')
-    st.header(f"📅 {today}")
-with col2:
-    st.header("🧠 Mood")
-    mood = st.selectbox("How do you feel today?", 
-                        ["Energetic ⚡", "Happy 😊", "Neutral 😐", "Tired 😫", "Stressed 🤯"])
-
-# --- CHECKLIST ---
-st.write("### ✅ Mark your wins for today:")
-completed_tasks = []
-
-for time, activity in tasks.items():
-    if st.checkbox(f"**{time}** - {activity}"):
-        completed_tasks.append(activity)
-
-# --- PROGRESS BAR ---
-total_tasks = len(tasks)
-completed_count = len(completed_tasks)
-if total_tasks > 0:
-    progress = completed_count / total_tasks
-else:
-    progress = 0
-
-st.write("---")
-st.progress(progress)
-st.write(f"**Progress:** {int(progress * 100)}% ({completed_count}/{total_tasks} tasks)")
-
-# --- SAVE BUTTON ---
-if st.button("💾 Save My Progress"):
-    data = {
-        "Date": [today],
-        "Mood": [mood],
-        "Score_Percent": [int(progress * 100)],
-        "Tasks_Done": [", ".join(completed_tasks)]
-    }
-    df = pd.DataFrame(data)
+# --- VIEW MODE (For Everyone) ---
+# Load data to show graph
+if os.path.exists(file_name):
+    history_df = pd.read_csv(file_name)
     
-    file_name = "shaan_tracker_data.csv"
-    if not os.path.exists(file_name):
-        df.to_csv(file_name, index=False)
+    # Calculate streaks or stats
+    st.write("### 📊 Shaan's Consistency Score")
+    st.line_chart(history_df.set_index("Date")["Score_Percent"])
+else:
+    st.info("No data available yet.")
+
+# --- EDIT MODE (Only if Password is Correct) ---
+if password == "Shaan123":  # <--- YOUR SECRET PASSWORD
+    st.success("🔓 Unlocked! You can now edit.")
+    
+    st.write("---")
+    st.header("📝 Update Today's Data")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        today = datetime.now().strftime('%Y-%m-%d')
+        st.write(f"**Date:** {today}")
+    with col2:
+        mood = st.selectbox("How do you feel?", 
+                            ["Energetic ⚡", "Happy 😊", "Neutral 😐", "Tired 😫", "Stressed 🤯"])
+
+    # Checklist
+    completed_tasks = []
+    for time, activity in tasks.items():
+        if st.checkbox(f"**{time}** - {activity}"):
+            completed_tasks.append(activity)
+
+    # Calculate Progress
+    total_tasks = len(tasks)
+    completed_count = len(completed_tasks)
+    if total_tasks > 0:
+        progress = completed_count / total_tasks
     else:
-        df.to_csv(file_name, mode='a', header=False, index=False)
+        progress = 0
     
-    st.success(f"Saved! You achieved {int(progress * 100)}% today while feeling {mood}.")
+    st.progress(progress)
+    st.write(f"**Score:** {int(progress * 100)}%")
 
-# --- VISUALIZATION (DATA SCIENCE SECTION) ---
-st.write("---")
-st.header("📊 Your Consistency Graph")
-
-if os.path.exists("shaan_tracker_data.csv"):
-    try:
-        # Load data
-        history_df = pd.read_csv("shaan_tracker_data.csv")
-        # Simple Line Chart
-        st.line_chart(history_df.set_index("Date")["Score_Percent"])
+    # Save Button
+    if st.button("💾 Save to Database"):
+        data = {
+            "Date": [today],
+            "Mood": [mood],
+            "Score_Percent": [int(progress * 100)],
+            "Tasks_Done": [", ".join(completed_tasks)]
+        }
+        df = pd.DataFrame(data)
         
-        # Show Data Table
-        with st.expander("See your full history data"):
-            st.dataframe(history_df)
-    except:
-        st.error("Data file is empty or corrupted. Try saving today's progress first!")
+        if not os.path.exists(file_name):
+            df.to_csv(file_name, index=False)
+        else:
+            df.to_csv(file_name, mode='a', header=False, index=False)
+        st.success("Saved successfully!")
+        st.rerun()
+
+    # DOWNLOAD BUTTON (To keep your Excel Sheet safe)
+    st.write("---")
+    if os.path.exists(file_name):
+        with open(file_name, "rb") as file:
+            st.download_button(
+                label="📥 Download Excel File",
+                data=file,
+                file_name="shaan_tracker_history.csv",
+                mime="text/csv"
+            )
+
 else:
-    st.info("Start saving data to see your graph here!")
+    # Message for Guddu/Others
+    st.write("---")
+    st.info("👋 Viewing Mode Only. Ask Shaan for the password to edit.")
+
