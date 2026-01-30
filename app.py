@@ -93,15 +93,61 @@ elif menu == "🧬 Allen & MBA Pro":
             get_google_sheet("MBA_Tasks").append_row([datetime.now().strftime("%Y-%m-%d"), task_mba, "Pending"])
             st.success("Task Added!")
 
-# --- TAB 4: MONEY MAGIC ---
+# --- TAB 4: MONEY MAGIC (ADVANCED WALLET TRACKER) ---
 elif menu == "💸 Money Magic":
-    st.title("💰 Wallet Tracker 💸")
-    with st.form("money"):
-        item = st.text_input("Item")
-        amt = st.number_input("Amount (₹)", min_value=0)
-        if st.form_submit_button("✨ LOG SPEND"):
-            get_google_sheet("Expenses").append_row([datetime.now().strftime("%Y-%m-%d"), item, amt])
-            st.success("Logged!")
+    st.title("💰 Advanced Wallet Tracker 💸")
+    
+    # Advanced Form for Logging
+    with st.expander("➕ Log New Expense", expanded=True):
+        with st.form("money_advanced"):
+            col_f1, col_f2 = st.columns(2)
+            with col_f1:
+                item = st.text_input("What did you buy? 🛍️")
+                amt = st.number_input("Amount (₹)", min_value=0)
+            with col_f2:
+                cat = st.selectbox("Category", ["Food 🍔", "Travel 🚕", "MBA/Books 📚", "Hostel/Rent 🏠", "Others 🎈"])
+                mode = st.radio("Payment Mode", ["UPI 📱", "Cash 💵"], horizontal=True)
+            
+            if st.form_submit_button("✨ SECURELY LOG SPEND"):
+                try:
+                    sheet = get_google_sheet("Expenses")
+                    sheet.append_row([datetime.now().strftime("%Y-%m-%d"), item, cat, amt, mode])
+                    st.success(f"Successfully logged ₹{amt} for {item}! ✅")
+                except Exception as e:
+                    st.error(f"Sync Error: Make sure your Google Sheet has an 'Expenses' tab! {e}")
+
+    # Data Science Section: Expense Analysis
+    st.markdown("---")
+    st.subheader("📊 Expense Insights & Analytics")
+    
+    try:
+        # Fetch data from Google Sheets
+        exp_data = pd.DataFrame(get_google_sheet("Expenses").get_all_records())
+        
+        if not exp_data.empty:
+            # Metrics for quick view
+            total_spent = exp_data['Amount'].sum()
+            today_spent = exp_data[exp_data['Date'] == datetime.now().strftime("%Y-%m-%d")]['Amount'].sum()
+            
+            col_met1, col_met2 = st.columns(2)
+            col_met1.metric("Total Spends (Overall)", f"₹{total_spent:,}")
+            col_met2.metric("Today's Spend", f"₹{today_spent:,}", delta=f"Budget: ₹80k/mo") #
+
+            # Category-wise Analysis Chart
+            import plotly.express as px
+            cat_totals = exp_data.groupby('Category')['Amount'].sum().reset_index()
+            fig_pie = px.pie(cat_totals, values='Amount', names='Category', 
+                            title='Where is your money going? 💸',
+                            color_discrete_sequence=px.colors.sequential.RdBu)
+            st.plotly_chart(fig_pie, use_container_width=True)
+
+            # Recent Transactions Table
+            st.write("📂 **Recent Transactions**")
+            st.dataframe(exp_data.tail(5), use_container_width=True)
+        else:
+            st.info("No expenses found. Start logging to see your financial analytics! 🚀")
+    except:
+        st.warning("Please ensure your Google Sheet has headers: Date, Item, Category, Amount, Mode")
 
 # --- TAB 5: HEART JOURNAL ---
 elif menu == "✍️ Heart Journal":
@@ -110,3 +156,4 @@ elif menu == "✍️ Heart Journal":
     if st.button("🔒 SEAL ENTRY"):
         get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
         st.success("Saved. ❤️")
+
