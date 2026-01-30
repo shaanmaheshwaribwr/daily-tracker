@@ -7,7 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import plotly.express as px
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Shaan's Executive OS", page_icon="👔", layout="wide")
+st.set_page_config(page_title="Shaan's Master OS", page_icon="💎", layout="wide")
 
 # --- GOOGLE SHEETS CONNECTION ---
 @st.cache_resource
@@ -21,37 +21,38 @@ def get_google_sheet(sheet_name):
 # --- DYNAMIC QUOTES ---
 quotes = [
     "“The only way to do great work is to love what you do.” – Steve Jobs",
-    "“Success is the sum of small efforts, repeated day in and day out.”",
-    "“Focus on being productive instead of busy.”",
-    "“Your education is a dress rehearsal for a life that is yours to lead.”",
-    "“Biology is the only science in which multiplication means the same thing as division.”"
+    "“Discipline is the bridge between goals and accomplishment.”",
+    "“Success is not final; failure is not fatal: It is the courage to continue that counts.”",
+    "“Biology is the only science in which multiplication means the same thing as division.”",
+    "“Your future is created by what you do today, not tomorrow.”"
 ]
 
 # --- PREMIUM STYLING ---
 st.markdown("""
     <style>
-    .stApp { background-color: #0E1117; color: #E0E0E0; }
-    .metric-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; border-left: 5px solid #00c6ff; }
-    .quote-box { font-style: italic; color: #00c6ff; text-align: center; padding: 20px; border: 1px dashed #444; border-radius: 10px; margin-bottom: 25px; }
+    .stApp { background-color: #0d1117; color: #ffffff; }
+    .metric-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; border-left: 5px solid #00d2ff; }
+    .quote-box { font-style: italic; color: #00d2ff; text-align: center; padding: 15px; border: 1px solid #30363d; border-radius: 12px; margin-bottom: 20px; background: rgba(0,210,255,0.05); }
+    .stCheckbox { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 5px 10px; margin-bottom: 4px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR & LOGO ---
-st.sidebar.image("https://i.imgur.com/8K5M8vS.png", width=150) # Use your uploaded photo link here
-st.sidebar.title("SHAAN MAHESHWARI")
-menu = st.sidebar.radio("COMMAND CENTER", ["📊 Executive Dashboard", "📝 Full Daily Routine", "💰 Expense Ledger", "📓 Private Journal"])
+# --- SIDEBAR & PROFILE ---
+st.sidebar.markdown("<h2 style='text-align: center;'>SHAAN OS</h2>", unsafe_allow_html=True)
+st.sidebar.image("https://i.imgur.com/8K5M8vS.png", width=180) # Link to your provided photo
+menu = st.sidebar.radio("COMMAND CENTER", ["📊 Executive Dashboard", "📝 Precision Routine", "💰 Expense Ledger", "📓 Daily Journal"])
 
 # --- TAB 1: EXECUTIVE DASHBOARD ---
 if menu == "📊 Executive Dashboard":
     st.title("🏛️ Executive Command Center")
     st.markdown(f"<div class='quote-box'>{random.choice(quotes)}</div>", unsafe_allow_html=True)
     
-    # Summary Metrics
+    # KPIs
     c1, c2, c3, c4 = st.columns(4)
-    with c1: st.metric("Consistency", "94%", "🔥")
-    with c2: st.metric("MBA Prep", "Module 4", "📚")
-    with c3: st.metric("Allen Teaching", "Active", "👩‍🏫")
-    with c4: st.metric("Budget", "Healthy", "✅")
+    c1.metric("Consistency", "98%", "🔥")
+    c2.metric("MBA Goals", "On Track", "📚")
+    c3.metric("Teaching Status", "Active", "🧬")
+    c4.metric("Wallet", "Balanced", "⚖️")
 
     st.divider()
     
@@ -59,70 +60,74 @@ if menu == "📊 Executive Dashboard":
     try:
         df = pd.DataFrame(get_google_sheet("Expenses").get_all_records())
         if not df.empty:
+            df['Amount (₹)'] = pd.to_numeric(df['Amount (₹)'], errors='coerce')
             col_left, col_right = st.columns(2)
             with col_left:
-                st.subheader("Spending Analysis")
-                fig = px.pie(df, values='Amount (₹)', names='Category', hole=0.5, template="plotly_dark")
+                st.subheader("Monthly Spend Distribution")
+                fig = px.pie(df, values='Amount (₹)', names='Category', hole=0.6, template="plotly_dark", color_discrete_sequence=px.colors.sequential.Cyan)
                 st.plotly_chart(fig, use_container_width=True)
             with col_right:
-                st.subheader("Payment Distribution")
-                fig2 = px.bar(df, x="Mode", y="Amount (₹)", color="Category", template="plotly_dark")
+                st.subheader("Payment Trends")
+                fig2 = px.bar(df, x="Mode", y="Amount (₹)", color="Category", template="plotly_dark", barmode="group")
                 st.plotly_chart(fig2, use_container_width=True)
     except:
-        st.info("Charts will appear once you add data to your Google Sheet.")
+        st.info("Analytics will populate as you log expenses.")
 
-# --- TAB 2: FULL DAILY ROUTINE (WITH TIMINGS) ---
-elif menu == "📝 Full Daily Routine":
-    st.title("🎯 Precision Timetable")
-    st.write(f"Today is {datetime.now().strftime('%A, %d %B %Y')}")
+# --- TAB 2: PRECISION ROUTINE (WITH YOUR EXACT TIMINGS) ---
+elif menu == "📝 Precision Routine":
+    st.title("🎯 Detailed Daily Execution")
+    st.write(f"Status for: {datetime.now().strftime('%A, %d %B %Y')}")
     
-    colA, colB = st.columns(2)
-    with colA:
-        st.subheader("🌅 Morning Rituals")
-        r1 = st.checkbox("06:00 AM - Wake Up & Hydrate 💧")
-        r2 = st.checkbox("06:30 AM - Freshen Up & Meditate 🧘‍♀️")
-        r3 = st.checkbox("07:00 AM - MBA Study Session 1 (3 Hrs) 📚")
-        r4 = st.checkbox("10:00 AM - Breakfast & Break ☕")
+    col_morning, col_afternoon = st.columns(2)
+    
+    with col_morning:
+        st.subheader("🌅 Early Morning Rituals")
+        r1 = st.checkbox("06:00 - 06:30 | Wake Up, Freshen Up & Hydrate 💧")
+        r2 = st.checkbox("06:30 - 07:00 | Exercise Session 💪")
+        r3 = st.checkbox("07:00 - 07:30 | Healthy Breakfast 🍳")
+        r4 = st.checkbox("07:30 - 08:00 | Bath & Pooja 🙏")
+        r5 = st.checkbox("08:00 - 11:30 | Deep Study Block 1 (3.5 Hrs) 📚")
         
-    with colB:
-        st.subheader("☀️ Afternoon & Evening")
-        r5 = st.checkbox("12:00 PM - MBA Study Session 2 📖")
-        r6 = st.checkbox("02:00 PM - Lunch & Rest 🥗")
-        r7 = st.checkbox("04:00 PM - Allen Biology Teaching 👩‍🏫")
-        r8 = st.checkbox("08:00 PM - Dinner & Family Time 🍽️")
-        r9 = st.checkbox("10:00 PM - Journal & Planning ✍️")
-        r10 = st.checkbox("11:00 PM - Sleep (Restoration) 😴")
+    with col_afternoon:
+        st.subheader("☀️ Mid-Day & Evening")
+        r6 = st.checkbox("11:30 - 12:00 | Balanced Lunch 🥗")
+        r7 = st.checkbox("12:00 - 12:30 | Mindful Walk 🚶‍♀️")
+        r8 = st.checkbox("12:30 - 01:00 | Power Rest 😴")
+        r9 = st.checkbox("01:00 - 03:30 | Deep Study Block 2 (2.5 Hrs) 📖")
+        r10 = st.checkbox("04:00 - 07:00 | Allen Biology Teaching 👩‍🏫")
+        r11 = st.checkbox("08:00 - 10:30 | Dinner & Final Review 📝")
+        r12 = st.checkbox("11:00 PM | Sleep (Recovery) 🌙")
 
-    if st.button("💾 SYNC DAY TO GOOGLE SHEETS"):
+    if st.button("🚀 SYNC PERFORMANCE TO CLOUD"):
         try:
             sheet = get_google_sheet("Habits")
-            completed = sum([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10])
-            sheet.append_row([datetime.now().strftime("%Y-%m-%d"), f"{completed}/10", "Success"])
+            score = sum([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12])
+            sheet.append_row([datetime.now().strftime("%Y-%m-%d"), f"{score}/12", "Sync Successful"])
             st.balloons()
-            st.success("Performance Data Synced! ✅")
-        except Exception as e: st.error(f"Error: {e}")
+            st.success(f"Excellent! You completed {score} major milestones today. ✅")
+        except Exception as e: st.error(f"Sync Error: {e}")
 
 # --- TAB 3: EXPENSE LEDGER ---
 elif menu == "💰 Expense Ledger":
-    st.title("💵 Financial Management")
+    st.title("💸 Advanced Financial Tracking")
     with st.form("expense_form"):
-        item = st.text_input("Transaction Name")
+        item = st.text_input("Transaction Detail")
         amt = st.number_input("Amount (₹)", min_value=0)
-        mode = st.selectbox("Payment Method", ["UPI", "Cash", "Credit/Debit Card"])
-        cat = st.selectbox("Category", ["Food", "Travel", "MBA Fees", "Skincare/Beauty", "Other"])
-        if st.form_submit_button("Confirm Transaction"):
+        mode = st.radio("Payment Mode", ["UPI", "Cash", "Card"], horizontal=True)
+        cat = st.selectbox("Category", ["Food", "Travel", "MBA/Academic", "Skincare", "Other"])
+        if st.form_submit_button("Confirm Entry"):
             try:
                 get_google_sheet("Expenses").append_row([datetime.now().strftime("%Y-%m-%d"), item, cat, amt, mode])
-                st.success("Transaction Logged. ✅")
+                st.success("Transaction recorded in Sheets! ✅")
             except Exception as e: st.error(f"Error: {e}")
 
-# --- TAB 4: PRIVATE JOURNAL ---
-elif menu == "📓 Private Journal":
+# --- TAB 4: DAILY JOURNAL ---
+elif menu == "📓 Daily Journal":
     st.title("📓 Shaan's Reflections")
-    entry = st.text_area("Record your insights, wins, or lessons learned today...")
-    if st.button("🔒 Archive Entry"):
+    entry = st.text_area("What was the highlight of your MBA studies or Biology classes today?")
+    if st.button("🔒 Secure Entry"):
         try:
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d %H:%M"), entry])
-            st.success("Entry encrypted and saved. 📖")
+            st.success("Your reflection has been safely archived. 📖")
         except Exception as e: st.error(f"Error: {e}")
             
