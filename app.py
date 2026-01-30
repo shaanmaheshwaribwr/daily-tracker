@@ -17,11 +17,14 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- CONNECT TO GOOGLE SHEETS ---
+    # --- CONNECT TO GOOGLE SHEETS ---
 @st.cache_resource
 def get_google_sheet(sheet_name):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    
+    # This line tells the app to look for the "service_account_info" label you created
     creds_dict = st.secrets["service_account_info"]
+    
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
     return client.open("Shaan Daily Tracker").worksheet(sheet_name)
@@ -138,4 +141,5 @@ elif menu == "📖 Journal":
                 st.success("Journal Entry Saved! ✍️")
             except Exception as e:
                 st.error(f"Error: {e}")
+
 
