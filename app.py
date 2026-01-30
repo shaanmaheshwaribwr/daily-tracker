@@ -63,23 +63,41 @@ if menu == "🏠 Home & Vibe":
             st.plotly_chart(fig, use_container_width=True)
     except: st.info("Add some expenses to see the magic! ✨")
 
-# --- TAB 2: MASTER ROUTINE ---
+# --- TAB 2: MASTER ROUTINE (FULL 24-HOUR FLOW) ---
 elif menu == "⏰ Master Routine":
     st.title("🎯 Precision Timetable 🌸")
+    st.write(f"📅 Today's Date: {datetime.now().strftime('%B %d, %Y')}")
+    
     colA, colB = st.columns(2)
+    
     with colA:
         st.markdown("### 🌅 Morning Flow")
-        st.checkbox("06:00 - 06:30 | Wake Up & Hydrate 💧")
-        st.checkbox("06:30 - 07:00 | Exercise Session 💪")
-        st.checkbox("08:00 - 11:30 | MBA Study Block 1 📚")
+        r1 = st.checkbox("06:00 - 06:30 | Wake Up & Hydrate 💧")
+        r2 = st.checkbox("06:30 - 07:00 | Exercise Session 💪")
+        r3 = st.checkbox("07:00 - 07:30 | Healthy Breakfast 🍳")
+        r4 = st.checkbox("07:30 - 08:00 | Bath & Pooja 🙏")
+        r5 = st.checkbox("08:00 - 11:30 | MBA Study Block 1 📚")
+        r6 = st.checkbox("11:30 - 12:00 | Balanced Lunch 🥗")
+        
     with colB:
         st.markdown("### ☀️ Afternoon & Evening")
-        st.checkbox("04:00 - 07:00 | Allen Biology Teaching 🧬")
-        st.checkbox("11:00 PM | Dreamland 🌙")
+        r7 = st.checkbox("12:00 - 12:30 | Mindful Walk 🚶‍♀️")
+        r8 = st.checkbox("12:30 - 01:00 | Power Rest/Nap 😴")
+        r9 = st.checkbox("01:00 - 03:30 | MBA Study Block 2 📖")
+        r10 = st.checkbox("04:00 - 07:00 | Allen Biology Teaching 🧬")
+        r11 = st.checkbox("08:00 - 10:30 | Dinner & Final Review 📝")
+        r12 = st.checkbox("11:00 PM | Dreamland 🌙")
 
     if st.button("🚀 SYNC MY DAY"):
-        st.snow()
-        st.success("Routine backed up! ✅")
+        try:
+            sheet = get_google_sheet("Habits")
+            # This calculates your score out of 12 tasks
+            score = sum([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12])
+            sheet.append_row([datetime.now().strftime("%Y-%m-%d"), f"{score}/12", "Joyfully Completed!"])
+            st.balloons()
+            st.success(f"Amazing, Shaan! You completed {score}/12 tasks today! 🔥❤️")
+        except Exception as e:
+            st.error(f"Sync Error: {e}")
 
 # --- TAB 3: ALLEN & MBA PRO (MODIFIED TO TO-DO LIST) ---
 elif menu == "🧬 Allen & MBA Pro":
@@ -134,3 +152,4 @@ elif menu == "✍️ Heart Journal":
             get_sheet.append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. 📖")
         except Exception as e: st.error(f"Error: {e}")
+
