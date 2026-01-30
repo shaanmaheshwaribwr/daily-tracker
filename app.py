@@ -13,7 +13,6 @@ st.set_page_config(page_title="Shaan's Ultimate OS 🌈", page_icon="💖", layo
 @st.cache_resource
 def get_google_sheet(sheet_name):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    # We use the name we set in the secrets box
     creds_dict = dict(st.secrets["shaan_os_secrets"])
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
@@ -31,15 +30,13 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- SIDEBAR & VIBE ---
-st.sidebar.image("https://i.imgur.com/8K5M8vS.png", width=150) # Shaan's Profile Photo
+st.sidebar.image("https://i.imgur.com/8K5M8vS.png", width=150) 
 st.sidebar.title("🌈 Shaan's Universe")
 menu = st.sidebar.radio("COMMAND CENTER", ["🏠 Home & Vibe", "⏰ Master Routine", "🧬 Allen & MBA Pro", "💸 Money Magic", "✍️ Heart Journal"])
 
 # --- TAB 1: HOME & VIBE ---
 if menu == "🏠 Home & Vibe":
     st.title("☀️ Hello, Shaan! ❤️")
-    
-    # Dynamic Vibe Checker
     with st.container():
         st.markdown("<div class='section-box'>", unsafe_allow_html=True)
         colV1, colV2 = st.columns([2, 1])
@@ -49,10 +46,9 @@ if menu == "🏠 Home & Vibe":
         with colV2:
             if st.button("Log My Vibe"):
                 st.balloons()
-                st.success("Vibe Recorded! You're never alone here! ✨")
+                st.success("Vibe Recorded! ✨")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Guddu Corner & Metrics
     c1, c2, c3 = st.columns(3)
     c1.metric("Relationship ❤️", "Guddu", "Special")
     c2.metric("MBA Progress 📚", "84% Grade", "Top Tier")
@@ -73,35 +69,47 @@ elif menu == "⏰ Master Routine":
     colA, colB = st.columns(2)
     with colA:
         st.markdown("### 🌅 Morning Flow")
-        r1 = st.checkbox("06:00 - 06:30 | Wake Up & Hydrate 💧")
-        r2 = st.checkbox("06:30 - 07:00 | Exercise Session 💪")
-        r3 = st.checkbox("07:00 - 07:30 | Breakfast 🍳")
-        r4 = st.checkbox("07:30 - 08:00 | Bath & Pooja 🙏")
-        r5 = st.checkbox("08:00 - 11:30 | MBA Study Block 1 📚")
+        st.checkbox("06:00 - 06:30 | Wake Up & Hydrate 💧")
+        st.checkbox("06:30 - 07:00 | Exercise Session 💪")
+        st.checkbox("08:00 - 11:30 | MBA Study Block 1 📚")
     with colB:
         st.markdown("### ☀️ Afternoon & Evening")
-        r6 = st.checkbox("11:30 - 12:00 | Lunch 🥗")
-        r7 = st.checkbox("12:00 - 01:00 | Walk & Rest 🚶‍♀️")
-        r8 = st.checkbox("01:00 - 03:30 | MBA Study Block 2 📖")
-        r9 = st.checkbox("04:00 - 07:00 | Allen Biology Teaching 🧬")
-        r10 = st.checkbox("11:00 PM | Dreamland 🌙")
+        st.checkbox("04:00 - 07:00 | Allen Biology Teaching 🧬")
+        st.checkbox("11:00 PM | Dreamland 🌙")
 
     if st.button("🚀 SYNC MY DAY"):
         st.snow()
-        st.success("Routine backed up to Google Sheets! ✅")
+        st.success("Routine backed up! ✅")
 
-# --- TAB 3: ALLEN & MBA PRO ---
+# --- TAB 3: ALLEN & MBA PRO (MODIFIED TO TO-DO LIST) ---
 elif menu == "🧬 Allen & MBA Pro":
-    st.title("🎓 Professional Command Center")
+    st.title("🎓 Professional To-Do List")
+    
+    # Setup for temporary memory of tasks
+    if 'allen_list' not in st.session_state: st.session_state.allen_list = []
+    if 'mba_list' not in st.session_state: st.session_state.mba_list = []
+
     colL, colR = st.columns(2)
+    
     with colL:
-        st.header("🧬 Biology Faculty")
-        st.info("Today's Target: Prepare Grade 9 Cell Biology Notes")
-        st.write("✅ Grade 10: Genetics review")
+        st.header("🧬 Allen Biology (Grades 9 & 10)")
+        new_bio = st.text_input("Add Bio Task", key="bio_add")
+        if st.button("Add to Allen") and new_bio:
+            st.session_state.allen_list.append(new_bio)
+        
+        for i, task in enumerate(st.session_state.allen_list):
+            if st.checkbox(f"{task}", key=f"bio_{i}"):
+                st.write(f"~~{task}~~ ✅")
+
     with colR:
-        st.header("📊 MBA Data Science")
-        st.warning("Next: Operations Management Assignment")
-        st.write("📈 Data Science: Finish Python module")
+        st.header("📊 MBA Operations & Data Science")
+        new_mba = st.text_input("Add MBA Task", key="mba_add")
+        if st.button("Add to MBA") and new_mba:
+            st.session_state.mba_list.append(new_mba)
+            
+        for i, task in enumerate(st.session_state.mba_list):
+            if st.checkbox(f"{task}", key=f"mba_{i}"):
+                st.write(f"~~{task}~~ ✅")
 
 # --- TAB 4: MONEY MAGIC ---
 elif menu == "💸 Money Magic":
@@ -109,20 +117,20 @@ elif menu == "💸 Money Magic":
     with st.form("money"):
         item = st.text_input("What did you buy? 🛍️")
         amt = st.number_input("Amount (₹)", min_value=0)
-        mode = st.radio("Mode", ["UPI 📱", "Cash 💵", "Card 💳"], horizontal=True)
         cat = st.selectbox("Category", ["Food 🍔", "Travel 🚕", "MBA/Books 📚", "Beauty 💄", "Others"])
         if st.form_submit_button("✨ LOG SPEND"):
             try:
-                get_google_sheet("Expenses").append_row([datetime.now().strftime("%Y-%m-%d"), item, cat, amt, mode])
-                st.success("Transaction saved to Sheets! ✅")
+                get_google_sheet("Expenses").append_row([datetime.now().strftime("%Y-%m-%d"), item, cat, amt, "UPI"])
+                st.success("Saved! ✅")
             except Exception as e: st.error(f"Error: {e}")
 
 # --- TAB 5: HEART JOURNAL ---
 elif menu == "✍️ Heart Journal":
     st.title("📓 Shaan's Reflections ✍️")
-    msg = st.text_area("Write about your day, Nanded vibes, or a message for Guddu... ❤️")
+    msg = st.text_area("Write about your day... ❤️")
     if st.button("🔒 SEAL ENTRY"):
         try:
-            get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
+            get_sheet = get_google_sheet("Journal")
+            get_sheet.append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. 📖")
         except Exception as e: st.error(f"Error: {e}")
