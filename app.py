@@ -19,10 +19,61 @@ def get_google_sheet(sheet_name):
 st.sidebar.title("🌈 Shaan's Universe")
 menu = st.sidebar.radio("COMMAND CENTER", ["🏠 Home & Vibe", "⏰ Master Routine", "🧬 Allen & MBA Pro", "💸 Money Magic", "✍️ Heart Journal"])
 
-# --- TAB 1: HOME & VIBE ---
+# --- TAB 1: HOME & VIBE (PREMIUM DASHBOARD) ---
 if menu == "🏠 Home & Vibe":
-    st.title("☀️ Hello, Shaan! ❤️")
-    st.subheader("Your personalized command center is active.")
+    # Dynamic Quotes List
+    quotes = [
+        "Believe in yourself and you're halfway there. ✨",
+        "Your only limit is your mind. 🚀",
+        "Biology gives you a brain. Life turns it into a mind. 🧬",
+        "Data is the new oil, but Operations is the engine! 📊",
+        "Everything is possible with a little bit of coffee and a lot of Guddu magic. ❤️"
+    ]
+    random_quote = random.choice(quotes)
+
+    # Dashboard Header with Style
+    st.markdown(f"""
+        <div style="background: linear-gradient(to right, #FF512F, #DD2476); padding: 30px; border-radius: 20px; text-align: center; color: white; margin-bottom: 25px;">
+            <h1 style="font-size: 3em; margin: 0;">☀️ Hello, Shaan! ❤️</h1>
+            <p style="font-size: 1.5em; font-style: italic;">"{random_quote}"</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Engaging Metrics
+    col_m1, col_m2, col_m3 = st.columns(3)
+    with col_m1:
+        st.markdown("<div style='background: #6a11cb; padding: 20px; border-radius: 15px; text-align: center; color: white;'><h3>🧬 Allen Pro</h3><p style='font-size: 25px;'>Grade 9 & 10 Expert</p></div>", unsafe_allow_html=True)
+    with col_m2:
+        st.markdown("<div style='background: #2575fc; padding: 20px; border-radius: 15px; text-align: center; color: white;'><h3>📊 MBA Track</h3><p style='font-size: 25px;'>Operations & Data</p></div>", unsafe_allow_html=True)
+    with col_m3:
+        st.markdown("<div style='background: #ff0844; padding: 20px; border-radius: 15px; text-align: center; color: white;'><h3>💖 Mood</h3><p style='font-size: 25px;'>Guddu Magic Active</p></div>", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Interactive Vibe Graph
+    st.subheader("📈 Your Productivity & Vibe Flow")
+    try:
+        # Fetching Habit data for the graph
+        df_habits = pd.DataFrame(get_google_sheet("Habits").get_all_records())
+        if not df_habits.empty:
+            # Simple bar chart to show progress over time
+            import plotly.express as px
+            fig = px.area(df_habits.tail(7), x='Date', y='Score', 
+                         title='Last 7 Days Consistency',
+                         line_shape='spline', 
+                         color_discrete_sequence=['#FF512F'])
+            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color="white")
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Log some tasks in 'Master Routine' to see your vibe graph! 🚀")
+    except:
+        st.warning("Connect your 'Habits' tab in Google Sheets to see your visual progress! 📊")
+
+    # Motivational Poster Section
+    st.markdown("---")
+    st.markdown("### 🎨 Daily Inspiration")
+    st.image("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000", 
+             caption="Stay Focused, Shaan! Your Nanded empire is growing. 🔥", use_container_width=True)
 
 # --- TAB 2: MASTER ROUTINE (Full 12 Steps + Reset) ---
 elif menu == "⏰ Master Routine":
@@ -103,3 +154,4 @@ elif menu == "✍️ Heart Journal":
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. ❤️")
         except: st.error("Tab 'Journal' not found!")
+
