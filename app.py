@@ -239,7 +239,8 @@ elif menu == "✍️ Heart Journal":
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. ❤️")
         except: st.error("Tab 'Journal' missing!")
-            import streamlit as st
+    
+
 
 
 
