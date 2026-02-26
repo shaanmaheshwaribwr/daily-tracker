@@ -239,5 +239,30 @@ elif menu == "✍️ Heart Journal":
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. ❤️")
         except: st.error("Tab 'Journal' missing!")
+            import streamlit as st
+
+def lesson_plan_sync():
+    st.header("🧬 Allen Biology: Lesson Plan Sync")
+    
+    board = st.radio("Select Board:", ["CBSE (NCERT)", "MH State Board (SSC)"])
+    
+    # Mapping chapters based on your teaching schedule
+    chapters = {
+        "CBSE (NCERT)": ["Cell: Fundamental Unit", "Tissues", "Food Resources", "Diversity (Reference)"],
+        "MH State Board (SSC)": ["Classification of Plants", "Energy Flow in Ecosystem", "Life Processes", "Biotechnology"]
+    }
+    
+    selected_chapter = st.selectbox("Current Chapter:", chapters[board])
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.checkbox("Lecture Notes Ready")
+    with col2:
+        st.checkbox("DPP/Worksheet Assigned")
+    with col3:
+        st.checkbox("Module Questions Done")
+
+    st.text_area("Today's Teaching Goal:", placeholder="E.g., Explain Mitochondria structure...")
+
 
 
