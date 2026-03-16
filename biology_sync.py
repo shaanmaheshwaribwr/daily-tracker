@@ -29,3 +29,4 @@ def log_biology_class(batch, timing, class_level, unit, topic, hw):
 
 # Ye line tumhari class log karegi (Example data)
 log_biology_class("Evening Batch", "5:00 PM", "9th", "Tissues", "Plant Tissues", "Yes")
+[]
