@@ -1,26 +1,31 @@
-import gspread
 import json
-import os
-from google.oauth2.service_account import Credentials
 from datetime import datetime
 
-# 1. Connection Setup
-scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(os.environ['GOOGLE_SHEETS_CREDS'])
-creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
-client = gspread.authorize(creds)
-
-# 2. Sheet Open Karein (Tumhara Daily Tracker)
-sheet = client.open("Shaan Daily Tracker").worksheet("Biology_Teaching")
-
-# 3. Data Entry ka Logic
 def log_biology_class(batch, timing, class_level, unit, topic, hw):
-    date = datetime.now().strftime("%d-%m-%Y")
-    # Nayi row add ho rahi hai spreadsheet mein
-    sheet.append_row([date, batch, timing, class_level, unit, topic, hw])
-    print(f"Success: {topic} logged for {batch}!")
+    file_name = 'biology_data.json'
+    date_today = datetime.now().strftime("%d-%m-%Y")
+    
+    # Nayi entry ka format
+    new_entry = {
+        "Batch Name": batch,
+        "Timing": timing,
+        "Date": date_today,
+        "Class": class_level,
+        "Unit": unit,
+        "Topic": topic,
+        "Homework": hw
+    }
+    
+    # Data save karne ka logic
+    try:
+        with open(file_name, 'r+') as f:
+            data = json.load(f)
+            data.append(new_entry)
+            f.seek(0)
+            json.dump(data, f, indent=4)
+        print(f"Success! {topic} saved for {batch}.")
+    except Exception as e:
+        print("Error saving data:", e)
 
-# Sample test (Isse hum baad mein automation se replace karenge)
-if __name__ == "__main__":
-    # Ye sirf ek example entry hai
-    log_biology_class("Morning Batch", "8:00 AM", "10th", "Life Processes", "Nutrition", "Yes")
+# Ye line tumhari class log karegi (Example data)
+log_biology_class("Evening Batch", "5:00 PM", "9th", "Tissues", "Plant Tissues", "Yes")
