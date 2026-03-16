@@ -239,7 +239,29 @@ elif menu == "✍️ Heart Journal":
             get_google_sheet("Journal").append_row([datetime.now().strftime("%Y-%m-%d"), msg])
             st.success("Memory saved safely. ❤️")
         except: st.error("Tab 'Journal' missing!")
+    import json
+
+def log_biology_local(batch, timing, class_name, topic, hw):
+    new_entry = {
+        "date": "16-03-2026",
+        "batch": batch,
+        "timing": timing,
+        "class": class_name,
+        "topic": topic,
+        "homework": hw
+    }
     
+    # Purana data read karo
+    with open('shaan_tracker_data.json', 'r') as f:
+        data = json.load(f)
+    
+    # Naya data jodo
+    data.append(new_entry)
+    
+    # Wapas save kar do
+    with open('shaan_tracker_data.json', 'w') as f:
+        json.dump(data, f, indent=4)
+    print("Done! Data saved in GitHub file.")
 
 
 
